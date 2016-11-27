@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tabs>
+    <tab
+        activeColor="#ffffff"
+        barColorWhenSelected="#424242"
+        icon="@drawable/ic_hot"
+        id="@+id/tab_rank"
+        inActiveColor="#bdbdbd"
+        title="Rank" />
+    <tab
+        activeColor="#ffffff"
+        barColorWhenSelected="#424242"
+        icon="@drawable/ic_news"
+        id="@+id/tab_home"
+        inActiveColor="#bdbdbd"
+        title="News" />
+    <tab
+        activeColor="#ffffff"
+        barColorWhenSelected="#424242"
+        icon="@drawable/ic_search"
+        id="@+id/tab_search"
+        inActiveColor="#bdbdbd"
+        title="Search" />
+</tabs>

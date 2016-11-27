@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="baseUrl">http://openapi.ousns.net/</string>
+    <string name="access_cid">cid</string>
+    <string name="access_key">accesskey</string>
+    <string name="access_timestamp">timestamp</string>
+    <string name="access_client">client</string>
+    <string name="rank_limit">10</string>
+</resources>

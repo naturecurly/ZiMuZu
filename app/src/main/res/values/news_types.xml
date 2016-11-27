@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="news_type_key">
+        <item>news</item>
+        <item>m_review</item>
+        <item>t_review</item>
+        <item>guide</item>
+    </string-array>
+
+    <string-array name="news_type_value">
+        <item>新闻</item>
+        <item>影评</item>
+        <item>剧评</item>
+        <item>导视</item>
+    </string-array>
+</resources>
+

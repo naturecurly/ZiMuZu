@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">ZiMuZu</string>
+    <string name="score">Score: </string>
+    <string name="channel">Channel: </string>
+    <string name="area">Area: </string>
+    <string name="category">Category: </string>
+    <string name="search">Search</string>
+    <string name="resource">resource</string>
+</resources>
