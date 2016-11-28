@@ -14,6 +14,14 @@
         id="@+id/tab_home"
         inActiveColor="#bdbdbd"
         title="News" />
+
+    <tab
+        activeColor="#ffffff"
+        barColorWhenSelected="#424242"
+        icon="@drawable/ic_favorite"
+        id="@+id/tab_fav"
+        inActiveColor="#bdbdbd"
+        title="Fav" />
     <tab
         activeColor="#ffffff"
         barColorWhenSelected="#424242"

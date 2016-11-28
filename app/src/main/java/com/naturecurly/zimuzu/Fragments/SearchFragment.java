@@ -1,6 +1,7 @@
 package com.naturecurly.zimuzu.Fragments;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -29,12 +30,23 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class SearchFragment extends Fragment {
     private EditText searchText;
     private Button searchButton;
+    private Button weibo;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
         searchText = (EditText) view.findViewById(R.id.search_edit_text);
+        weibo = (Button) view.findViewById(R.id.weibo);
+        weibo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String url = "http://www.weibo.com/loenhardt";
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                getActivity().startActivity(intent);
+            }
+        });
         searchButton = (Button) view.findViewById(R.id.search_button);
         if (searchText.getText().length() == 0) {
             searchButton.setEnabled(false);
@@ -76,6 +88,5 @@ public class SearchFragment extends Fragment {
         bundle.putString("st", "");
         intent.putExtras(bundle);
         getActivity().startActivity(intent);
-
     }
 }

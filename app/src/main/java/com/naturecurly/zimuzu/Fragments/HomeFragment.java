@@ -1,5 +1,6 @@
 package com.naturecurly.zimuzu.Fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -19,6 +20,7 @@ import com.naturecurly.zimuzu.Bean.News;
 import com.naturecurly.zimuzu.Bean.NewsResponse;
 import com.naturecurly.zimuzu.NetworkServices.NewsService;
 import com.naturecurly.zimuzu.NetworkServices.RankService;
+import com.naturecurly.zimuzu.NewsActivity;
 import com.naturecurly.zimuzu.R;
 import com.naturecurly.zimuzu.Utils.AccessUtils;
 import com.naturecurly.zimuzu.Utils.DateUtils;
@@ -84,14 +86,25 @@ public class HomeFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            News news = dataSet.get(position);
+            final News news = dataSet.get(position);
             holder.title.setText(typeMap.containsKey(news.getType()) ? "[" + typeMap.get(news.getType()) + "] " + news.getTitle() :
                     "" + news.getTitle());
             holder.date.setText(DateUtils.timestamp2String(news.getDateline()));
             if (news.getPoster() != null) {
-                Log.i("image", news.getPoster_a());
+//                Log.i("image", news.getPoster_a());
                 Glide.with(getActivity()).load(news.getPoster()).centerCrop().into(holder.poster);
             }
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(getActivity(), NewsActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("id", news.getId());
+                    intent.putExtras(bundle);
+                    getActivity().startActivity(intent);
+                }
+            });
+            Log.i("news", news.getId());
         }
 
         @Override

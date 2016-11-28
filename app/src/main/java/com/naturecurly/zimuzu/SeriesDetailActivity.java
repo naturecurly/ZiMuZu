@@ -1,10 +1,16 @@
 package com.naturecurly.zimuzu;
 
+import android.content.ContentValues;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -12,10 +18,14 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.naturecurly.zimuzu.Bean.DatabaseInstance;
 import com.naturecurly.zimuzu.Bean.DetailResponse;
 import com.naturecurly.zimuzu.Bean.Series;
+import com.naturecurly.zimuzu.Databases.FavDataScheme;
+import com.naturecurly.zimuzu.Databases.FavDataScheme.FavTable;
 import com.naturecurly.zimuzu.NetworkServices.SeriesDetailService;
 import com.naturecurly.zimuzu.Utils.AccessUtils;
+import com.naturecurly.zimuzu.Utils.DatabaseUtils;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -39,13 +49,33 @@ public class SeriesDetailActivity extends AppCompatActivity {
     private TextView content;
     private TextView score;
     private TextView extraInfo;
+    private ContentValues contentValues;
+    private FloatingActionButton fab;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_series_detail);
+        transparentStatusBar();
         Bundle bundle = getIntent().getExtras();
         id = bundle.getString("id");
+
+
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setVisibility(View.GONE);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (DatabaseInstance.database.insert(FavTable.NAME, null, contentValues) > 0) {
+                    Snackbar.make(view, "Added to your Favorite", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                } else {
+                    Snackbar.make(view, "You have added this series", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+
+            }
+        });
         frameLayout = (FrameLayout) findViewById(R.id.detail_frame);
         chName = (TextView) findViewById(R.id.detail_cnname);
         enName = (TextView) findViewById(R.id.detail_enname);
@@ -69,6 +99,8 @@ public class SeriesDetailActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     DetailResponse detailResponse = (DetailResponse) response.body();
                     series = detailResponse.getData();
+                    contentValues = DatabaseUtils.generateFavContentValues(series);
+                    fab.setVisibility(View.VISIBLE);
                     fillInfo(series);
                 }
             }
@@ -95,5 +127,15 @@ public class SeriesDetailActivity extends AppCompatActivity {
                 frameLayout.setBackground(new BitmapDrawable(getResources(), resource));
             }
         });
+    }
+
+    private void transparentStatusBar() {
+        if (Build.VERSION.SDK_INT >= 21) {
+            View decorView = getWindow().getDecorView();
+            int option = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+            decorView.setSystemUiVisibility(option);
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
     }
 }
