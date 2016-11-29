@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="@string/data_saver_key"
+        android:summary="@string/data_saver_summary"
+        android:title="Data Saver" />
+    <ListPreference
+        android:defaultValue="10"
+        android:dialogTitle="@string/setting_rank_number_title"
+        android:entries="@array/rank_number"
+        android:entryValues="@array/rank_number"
+        android:key="@string/rank_number_key"
+        android:summary="@string/rank_number_summary"
+        android:title="@string/setting_rank_number_title" />
+    <ListPreference
+        android:defaultValue="15"
+        android:dialogTitle="@string/setting_text_size_title"
+        android:entries="@array/text_size"
+        android:entryValues="@array/text_size_value"
+        android:key="@string/text_size_key"
+        android:summary="@string/text_size_summary"
+        android:title="@string/setting_text_size_title" />
+</PreferenceScreen>

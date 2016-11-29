@@ -19,10 +19,11 @@
         <activity android:name=".SeriesDetailActivity"></activity>
         <activity android:name=".SearchResultActivity"></activity>
         <activity android:name=".NewsActivity"></activity>
+        <activity android:name=".SettingActivity"></activity>
+
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="41dc50126209eaf8803a53d2f262fc1ae0dc6b58"
-            />
+            android:value="41dc50126209eaf8803a53d2f262fc1ae0dc6b58" />
     </application>
 
 </manifest>

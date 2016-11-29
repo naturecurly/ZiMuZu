@@ -1,7 +1,9 @@
 package com.naturecurly.zimuzu.Fragments;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -65,10 +67,11 @@ public class RankFragment extends Fragment {
         Retrofit retrofit = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create()).baseUrl(getString(R.string.baseUrl)).build();
         RankService rankService = retrofit.create(RankService.class);
         Map<String, String> paramsMap = AccessUtils.generateAccessKey(getActivity());
-        for (Map.Entry entry : paramsMap.entrySet()) {
-            Log.i("entry", entry.getKey() + ": " + entry.getValue());
-        }
-        Call call = rankService.getTop(paramsMap, getString(R.string.rank_limit));
+//        for (Map.Entry entry : paramsMap.entrySet()) {
+//            Log.i("entry", entry.getKey() + ": " + entry.getValue());
+//        }
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        Call call = rankService.getTop(paramsMap, sharedPreferences.getString(getString(R.string.rank_number_key), getString(R.string.rank_limit)));
 
         call.enqueue(new Callback() {
 
@@ -110,7 +113,7 @@ public class RankFragment extends Fragment {
             TextView textView = holder.textView;
             View holderView = holder.holderView;
             final Series series = dataSet.get(position);
-            textView.setText(series.getCnname());
+            textView.setText((position + 1) + ". " + series.getCnname());
             holderView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

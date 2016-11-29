@@ -12,13 +12,15 @@
         android:background="@color/detail_frame_background">
 
         <LinearLayout
+            android:id="@+id/news_activity_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
             android:orientation="vertical">
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="80dp"
+                android:layout_height="100dp"
                 android:layout_margin="16dp"
                 android:background="@drawable/detail_top_shape">
 
@@ -32,18 +34,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
-                    android:text="title"
+                    android:background="@color/detail_top_background"
                     android:gravity="center"
                     android:textColor="@android:color/white"
-                    android:background="@color/detail_top_background"/>
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
             </FrameLayout>
 
-
-            <TextView
-                android:id="@+id/news_content"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textColor="@android:color/white" />
 
         </LinearLayout>
     </ScrollView>

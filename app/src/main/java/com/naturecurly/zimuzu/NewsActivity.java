@@ -1,11 +1,16 @@
 package com.naturecurly.zimuzu;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.TypedValue;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,6 +23,8 @@ import com.naturecurly.zimuzu.Bean.NewsDetail;
 import com.naturecurly.zimuzu.Bean.NewsDetailResponse;
 import com.naturecurly.zimuzu.NetworkServices.NewsDetailService;
 import com.naturecurly.zimuzu.Utils.AccessUtils;
+import com.naturecurly.zimuzu.Utils.DensityUtil;
+import com.naturecurly.zimuzu.Utils.StatusBarUtils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -36,10 +43,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NewsActivity extends AppCompatActivity {
     private String id;
-    private TextView newsContent;
-    private LinearLayout newsFrame;
+    private LinearLayout newsContainer;
     private TextView newsTitle;
     private ImageView newsTitleBackground;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,11 +55,11 @@ public class NewsActivity extends AppCompatActivity {
         Bundle bundle = intent.getExtras();
         id = bundle.getString("id");
         setContentView(R.layout.activity_news);
-        newsContent = (TextView) findViewById(R.id.news_content);
-        newsFrame = (LinearLayout) findViewById(R.id.news_activity_frame);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        StatusBarUtils.transparentStatusBar(this);
+        newsContainer = (LinearLayout) findViewById(R.id.news_activity_container);
         newsTitle = (TextView) findViewById(R.id.news_detail_title);
         newsTitleBackground = (ImageView) findViewById(R.id.news_title_background);
-        newsContent.setTextIsSelectable(true);
         getContent();
     }
 
@@ -83,9 +90,25 @@ public class NewsActivity extends AppCompatActivity {
         Elements elements = document.getElementsByTag("p");
         StringBuilder sb = new StringBuilder();
         for (Element e : elements) {
-            sb.append(e.text() + "\n");
+            if (e.getElementsByTag("img").hasAttr("src") && !(sharedPreferences.getBoolean(getString(R.string.data_saver_key), false))) {
+                String url = e.getElementsByTag("img").attr("src");
+                ImageView image = new ImageView(this);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                params.setMargins(DensityUtil.dip2px(this, 16), DensityUtil.dip2px(this, 16), DensityUtil.dip2px(this, 16), DensityUtil.dip2px(this, 16));
+                image.setLayoutParams(params);
+                Glide.with(this).load(url).fitCenter().crossFade().into(image);
+                newsContainer.addView(image);
+            }
+            TextView text = new TextView(this);
+            LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            textParams.setMargins(DensityUtil.dip2px(this, 16), 0, DensityUtil.dip2px(this, 16), 0);
+            text.setLayoutParams(textParams);
+            text.setTextColor(Color.WHITE);
+            text.setTextSize(TypedValue.COMPLEX_UNIT_SP, Integer.parseInt(sharedPreferences.getString(getString(R.string.text_size_key), "15")));
+            text.setText(e.text());
+            text.setTextIsSelectable(true);
+            newsContainer.addView(text);
         }
-        newsContent.setText(sb.toString());
         newsTitle.setText(title);
         Glide.with(getApplicationContext()).load(poster).centerCrop().animate(R.animator.load_image).into(newsTitleBackground);
 //        Glide.with(getApplicationContext()).load(poster).asBitmap().animate(R.animator.load_image).into(new SimpleTarget<Bitmap>() {

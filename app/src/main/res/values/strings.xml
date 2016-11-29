@@ -6,4 +6,13 @@
     <string name="category">Category: </string>
     <string name="search">Search</string>
     <string name="resource">resource</string>
+    <string name="setting">Setting</string>
+    <string name="data_saver_summary">No pictures in news when enabled.</string>
+    <string name="setting_rank_number_title">Rank Number</string>
+    <string name="rank_number_summary">Specify the number of the rank.</string>
+    <string name="setting_text_size_title">Text Size</string>
+    <string name="text_size_summary">Specify the text size of contents.</string>
+    <string name="rank_number_key">setting_rank_number</string>
+    <string name="text_size_key">setting_text_size</string>
+    <string name="data_saver_key">setting_data_saver</string>
 </resources>
