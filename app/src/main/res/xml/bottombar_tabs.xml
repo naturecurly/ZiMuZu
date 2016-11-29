@@ -22,6 +22,15 @@
         id="@+id/tab_fav"
         inActiveColor="#bdbdbd"
         title="Fav" />
+
+    <tab
+        activeColor="#ffffff"
+        barColorWhenSelected="#424242"
+        icon="@drawable/ic_update"
+        id="@+id/tab_update"
+        inActiveColor="#bdbdbd"
+        title="Update" />
+
     <tab
         activeColor="#ffffff"
         barColorWhenSelected="#424242"

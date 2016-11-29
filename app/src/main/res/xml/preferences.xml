@@ -22,4 +22,11 @@
         android:key="@string/text_size_key"
         android:summary="@string/text_size_summary"
         android:title="@string/setting_text_size_title" />
+    <EditTextPreference
+        android:defaultValue=""
+        android:key="download_address"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:summary="Set your own remote aria2 address."
+        android:title="Remote Download Address" />
 </PreferenceScreen>

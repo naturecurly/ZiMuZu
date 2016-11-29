@@ -12,16 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
-import com.naturecurly.zimuzu.NetworkServices.SearchService;
 import com.naturecurly.zimuzu.R;
 import com.naturecurly.zimuzu.SearchResultActivity;
-import com.naturecurly.zimuzu.Utils.AccessUtils;
-
-import retrofit2.Call;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by leveyleonhardt on 11/26/16.

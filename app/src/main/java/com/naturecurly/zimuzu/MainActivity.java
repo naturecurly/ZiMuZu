@@ -3,26 +3,25 @@ package com.naturecurly.zimuzu;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.annotation.IdRes;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.crashlytics.android.Crashlytics;
 import com.naturecurly.zimuzu.Bean.DatabaseInstance;
 import com.naturecurly.zimuzu.Databases.DatabaseOpenHelper;
 import com.naturecurly.zimuzu.Fragments.FavFragment;
 import com.naturecurly.zimuzu.Fragments.HomeFragment;
 import com.naturecurly.zimuzu.Fragments.RankFragment;
 import com.naturecurly.zimuzu.Fragments.SearchFragment;
+import com.naturecurly.zimuzu.Fragments.UpdateFragment;
 import com.roughike.bottombar.BottomBar;
-import com.roughike.bottombar.BottomBarTab;
 import com.roughike.bottombar.OnTabSelectListener;
-import com.crashlytics.android.Crashlytics;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -56,6 +55,11 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.tab_fav:
                         fragmentManager.beginTransaction().replace(R.id.content_container, new FavFragment()).commit();
+                        break;
+                    case R.id.tab_update:
+                        fragmentManager.beginTransaction().replace(R.id.content_container, new UpdateFragment()).commit();
+                        break;
+
                 }
             }
         });

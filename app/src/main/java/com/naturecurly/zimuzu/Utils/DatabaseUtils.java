@@ -4,10 +4,14 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.google.gson.JsonObject;
 import com.naturecurly.zimuzu.Bean.Favs;
 import com.naturecurly.zimuzu.Bean.Series;
+import com.naturecurly.zimuzu.Bean.Update;
 import com.naturecurly.zimuzu.Databases.FavDataScheme;
 import com.naturecurly.zimuzu.Databases.FavDataScheme.FavTable;
+import com.naturecurly.zimuzu.Databases.UpdateDataScheme;
+import com.naturecurly.zimuzu.Databases.UpdateDataScheme.UpdateTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,4 +38,27 @@ public class DatabaseUtils {
         }
         return favList;
     }
+
+    public static ContentValues generateUpdateContentValues(Update update) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(UpdateTable.Cols.ID, update.getId());
+        contentValues.put(UpdateTable.Cols.RESOURCE, update.getResourceid());
+        contentValues.put(UpdateTable.Cols.NAME, update.getName());
+        contentValues.put(UpdateTable.Cols.FORMAT, update.getFormat());
+        contentValues.put(UpdateTable.Cols.SEASON, update.getSeason());
+        contentValues.put(UpdateTable.Cols.EPISODE, update.getEpisode());
+        contentValues.put(UpdateTable.Cols.SIZE, update.getSize());
+        contentValues.put(UpdateTable.Cols.CHANNEL, update.getChannel());
+        contentValues.put(UpdateTable.Cols.CNNAME, update.getCnname());
+        JsonObject jsonObject = update.getWays();
+        String link = "";
+        if (jsonObject.has("2")) {
+            link = jsonObject.get("2").getAsString();
+        } else if (jsonObject.has("1")) {
+            link = jsonObject.get("1").getAsString();
+        }
+        contentValues.put(UpdateTable.Cols.WAY, link);
+        return contentValues;
+    }
+
 }

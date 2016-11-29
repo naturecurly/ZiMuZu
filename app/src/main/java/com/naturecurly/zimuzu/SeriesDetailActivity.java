@@ -21,7 +21,6 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.naturecurly.zimuzu.Bean.DatabaseInstance;
 import com.naturecurly.zimuzu.Bean.DetailResponse;
 import com.naturecurly.zimuzu.Bean.Series;
-import com.naturecurly.zimuzu.Databases.FavDataScheme;
 import com.naturecurly.zimuzu.Databases.FavDataScheme.FavTable;
 import com.naturecurly.zimuzu.NetworkServices.SeriesDetailService;
 import com.naturecurly.zimuzu.Utils.AccessUtils;

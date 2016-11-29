@@ -5,13 +5,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.naturecurly.zimuzu.Databases.FavDataScheme.FavTable;
+import com.naturecurly.zimuzu.Databases.UpdateDataScheme.UpdateTable;
 
 /**
  * Created by leveyleonhardt on 11/27/16.
  */
 
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
     public static final String DATABASE_NAME = "zimuzu.db";
 
     public DatabaseOpenHelper(Context context) {
@@ -24,6 +25,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     }
 
     private void createDB(SQLiteDatabase sqLiteDatabase) {
+        //create fav table
         sqLiteDatabase.execSQL("create table " + FavTable.NAME + "(" +
                 "_id integer primary key autoincrement, " +
                 FavTable.Cols.ID + " unique, " +
@@ -32,10 +34,41 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 FavTable.Cols.POSTER +
                 ")"
         );
+        //create update table
+        sqLiteDatabase.execSQL("create table " + UpdateTable.NAME + "(" +
+                "_id integer primary key autoincrement, " +
+                UpdateTable.Cols.ID + " unique, " +
+                UpdateTable.Cols.RESOURCE + ", " +
+                UpdateTable.Cols.NAME + ", " +
+                UpdateTable.Cols.FORMAT + ", " +
+                UpdateTable.Cols.SEASON + ", " +
+                UpdateTable.Cols.EPISODE + ", " +
+                UpdateTable.Cols.SIZE + ", " +
+                UpdateTable.Cols.CNNAME + ", " +
+                UpdateTable.Cols.CHANNEL + ", " +
+                UpdateTable.Cols.WAY +
+                ")"
+        );
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        if (oldVersion == 1) {
+            System.out.printf("update database");
+            sqLiteDatabase.execSQL("create table " + UpdateTable.NAME + "(" +
+                    "_id integer primary key autoincrement, " +
+                    UpdateTable.Cols.ID + " unique, " +
+                    UpdateTable.Cols.RESOURCE + ", " +
+                    UpdateTable.Cols.NAME + ", " +
+                    UpdateTable.Cols.FORMAT + ", " +
+                    UpdateTable.Cols.SEASON + ", " +
+                    UpdateTable.Cols.EPISODE + ", " +
+                    UpdateTable.Cols.SIZE + ", " +
+                    UpdateTable.Cols.CNNAME + ", " +
+                    UpdateTable.Cols.CHANNEL + ", " +
+                    UpdateTable.Cols.WAY +
+                    ")"
+            );
+        }
     }
 }

@@ -22,8 +22,6 @@ import com.naturecurly.zimuzu.R;
 import com.naturecurly.zimuzu.SeriesDetailActivity;
 import com.naturecurly.zimuzu.Utils.AccessUtils;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

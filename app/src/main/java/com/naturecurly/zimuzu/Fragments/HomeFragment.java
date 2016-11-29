@@ -15,11 +15,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
 import com.naturecurly.zimuzu.Bean.News;
 import com.naturecurly.zimuzu.Bean.NewsResponse;
 import com.naturecurly.zimuzu.NetworkServices.NewsService;
-import com.naturecurly.zimuzu.NetworkServices.RankService;
 import com.naturecurly.zimuzu.NewsActivity;
 import com.naturecurly.zimuzu.R;
 import com.naturecurly.zimuzu.Utils.AccessUtils;
@@ -28,7 +26,6 @@ import com.naturecurly.zimuzu.Utils.DateUtils;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -45,28 +42,61 @@ public class HomeFragment extends Fragment {
     private RecyclerView recyclerView;
     private LinkedHashMap<String, String> typeMap = new LinkedHashMap<>();
     private SwipeRefreshLayout swipeRefreshLayout;
+    private LinearLayoutManager linearLayoutManager;
+    private int visibleItemCount;
+    private int totalItemCount;
+    private int pastItems;
+    private boolean loading;
+    private int page;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
+        final View view = inflater.inflate(R.layout.fragment_home, container, false);
+        page = 1;
         recyclerView = (RecyclerView) view.findViewById(R.id.news_recycler_view);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.news_swipe_refresh);
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fetchNews();
+                page = 1;
+                fetchNews(page);
             }
         });
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        linearLayoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(new NewsAdapter(dataSet));
+        loading = false;
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                visibleItemCount = linearLayoutManager.getChildCount();
+                totalItemCount = linearLayoutManager.getItemCount();
+                pastItems = linearLayoutManager.findFirstVisibleItemPosition();
+
+                if (!loading) {
+                    if ((pastItems + visibleItemCount) >= totalItemCount) {
+                        loading = true;
+                        fetchNews(++page);
+                        loading = false;
+                    }
+                }
+            }
+        });
+
         String[] keys = getResources().getStringArray(R.array.news_type_key);
         String[] values = getResources().getStringArray(R.array.news_type_value);
         for (int i = 0; i < keys.length; i++) {
             typeMap.put(keys[i], values[i]);
         }
-        fetchNews();
+        fetchNews(page);
         return view;
     }
 
@@ -128,17 +158,21 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void fetchNews() {
+    private void fetchNews(final int page) {
         Retrofit retrofit = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create()).baseUrl(getString(R.string.baseUrl)).build();
         NewsService newsService = retrofit.create(NewsService.class);
-        Call call = newsService.fetchNews(AccessUtils.generateAccessKey(getActivity()), "50");
+        Call call = newsService.fetchNews(AccessUtils.generateAccessKey(getActivity()), "15", page + "");
         call.enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) {
                 if (response.isSuccessful()) {
                     NewsResponse newsResponse = (NewsResponse) response.body();
-                    dataSet = newsResponse.getData();
-                    recyclerView.setAdapter(new NewsAdapter(dataSet));
+                    dataSet.addAll(newsResponse.getData());
+                    if (page != 1) {
+                        recyclerView.getAdapter().notifyDataSetChanged();
+                    } else {
+                        recyclerView.setAdapter(new NewsAdapter(dataSet));
+                    }
                     if (swipeRefreshLayout != null) {
                         swipeRefreshLayout.setRefreshing(false);
                     }

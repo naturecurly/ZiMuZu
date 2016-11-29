@@ -15,5 +15,5 @@ import retrofit2.http.QueryMap;
 
 public interface NewsService {
     @GET("news/fetchlist")
-    Call<NewsResponse> fetchNews(@QueryMap Map<String, String> accessInfo, @Query("limit") String limit);
+    Call<NewsResponse> fetchNews(@QueryMap Map<String, String> accessInfo, @Query("limit") String limit, @Query("page") String page);
 }
