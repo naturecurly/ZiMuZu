@@ -54,8 +54,6 @@ public class DatabaseUtils {
         String link = "";
         if (jsonObject.has("2")) {
             link = jsonObject.get("2").getAsString();
-        } else if (jsonObject.has("1")) {
-            link = jsonObject.get("1").getAsString();
         }
         contentValues.put(UpdateTable.Cols.WAY, link);
         return contentValues;

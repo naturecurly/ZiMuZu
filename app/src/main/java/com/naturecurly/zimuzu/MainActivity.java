@@ -1,5 +1,8 @@
 package com.naturecurly.zimuzu;
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -20,6 +23,7 @@ import com.naturecurly.zimuzu.Fragments.HomeFragment;
 import com.naturecurly.zimuzu.Fragments.RankFragment;
 import com.naturecurly.zimuzu.Fragments.SearchFragment;
 import com.naturecurly.zimuzu.Fragments.UpdateFragment;
+import com.naturecurly.zimuzu.Services.UpdateInfoService;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 
@@ -28,11 +32,18 @@ import io.fabric.sdk.android.Fabric;
 public class MainActivity extends AppCompatActivity {
     private BottomBar bottomBar;
     private FragmentManager fragmentManager;
+    private JobScheduler updateScheduler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        updateScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        JobInfo.Builder builder = new JobInfo.Builder(1, new ComponentName(getPackageName(), UpdateInfoService.class.getName()));
+        builder.setPeriodic(900000);
+        JobInfo jobInfo = builder.build();
+        updateScheduler.schedule(jobInfo);
+
         Fabric.with(this, new Crashlytics());
         new getDatabaseTask().execute(getApplicationContext());
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);

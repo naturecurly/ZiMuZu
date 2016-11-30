@@ -15,4 +15,8 @@
     <string name="rank_number_key">setting_rank_number</string>
     <string name="text_size_key">setting_text_size</string>
     <string name="data_saver_key">setting_data_saver</string>
+    <string name="aria2_secret">Aria2 Secret</string>
+    <string name="remote_address">Remote Download Address</string>
+    <string name="download_address_key">download_address</string>
+    <string name="download_secret">download_secret</string>
 </resources>

@@ -61,6 +61,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onRefresh() {
                 page = 1;
+                dataSet = new ArrayList<News>();
                 fetchNews(page);
             }
         });
@@ -84,7 +85,9 @@ public class HomeFragment extends Fragment {
                 if (!loading) {
                     if ((pastItems + visibleItemCount) >= totalItemCount) {
                         loading = true;
-                        fetchNews(++page);
+                        page = page + 1;
+                        swipeRefreshLayout.setRefreshing(true);
+                        fetchNews(page);
                         loading = false;
                     }
                 }
@@ -102,7 +105,7 @@ public class HomeFragment extends Fragment {
 
 
     public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
-        private List<News> dataSet;
+        private List<News> dataSet = new ArrayList<>();
 
         public NewsAdapter(List<News> dataSet) {
             this.dataSet = dataSet;

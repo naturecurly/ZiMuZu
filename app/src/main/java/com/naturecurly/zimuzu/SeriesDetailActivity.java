@@ -1,6 +1,7 @@
 package com.naturecurly.zimuzu;
 
 import android.content.ContentValues;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -68,6 +69,8 @@ public class SeriesDetailActivity extends AppCompatActivity {
                 if (DatabaseInstance.database.insert(FavTable.NAME, null, contentValues) > 0) {
                     Snackbar.make(view, "Added to your Favorite", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
+                    SharedPreferences preferences = getSharedPreferences("zimuzu", MODE_PRIVATE);
+                    preferences.edit().putInt("updateId", 0).commit();
                 } else {
                     Snackbar.make(view, "You have added this series", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();

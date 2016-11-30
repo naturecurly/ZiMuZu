@@ -23,8 +23,8 @@ android {
         applicationId "com.naturecurly.zimuzu"
         minSdkVersion 21
         targetSdkVersion 24
-        versionCode 5
-        versionName "1.0.4"
+        versionCode 10
+        versionName "1.0.8"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
