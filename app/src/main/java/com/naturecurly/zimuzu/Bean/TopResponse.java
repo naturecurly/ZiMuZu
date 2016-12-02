@@ -6,7 +6,7 @@ import java.util.List;
  * Created by leveyleonhardt on 11/26/16.
  */
 
-public class TopResponce {
+public class TopResponse {
     private String status;
     private String info;
     private List<Series> data;

@@ -14,9 +14,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.naturecurly.zimuzu.Bean.Series;
-import com.naturecurly.zimuzu.Bean.TopResponce;
+import com.naturecurly.zimuzu.Bean.TopResponse;
 import com.naturecurly.zimuzu.NetworkServices.RankService;
 import com.naturecurly.zimuzu.R;
 import com.naturecurly.zimuzu.SeriesDetailActivity;
@@ -30,7 +31,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by leveyleonhardt on 11/26/16.
@@ -62,35 +69,39 @@ public class RankFragment extends Fragment {
     }
 
     private void getTopContent() {
-        Retrofit retrofit = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create()).baseUrl(getString(R.string.baseUrl)).build();
+        Retrofit retrofit = new Retrofit.Builder().addCallAdapterFactory(RxJavaCallAdapterFactory.create()).addConverterFactory(GsonConverterFactory.create()).baseUrl(getString(R.string.baseUrl)).build();
         RankService rankService = retrofit.create(RankService.class);
         Map<String, String> paramsMap = AccessUtils.generateAccessKey(getActivity());
 //        for (Map.Entry entry : paramsMap.entrySet()) {
 //            Log.i("entry", entry.getKey() + ": " + entry.getValue());
 //        }
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        Call call = rankService.getTop(paramsMap, sharedPreferences.getString(getString(R.string.rank_number_key), getString(R.string.rank_limit)));
+        Observable<TopResponse> rank = rankService.getTop(paramsMap, sharedPreferences.getString(getString(R.string.rank_number_key), getString(R.string.rank_limit)));
+        rank.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .retry(3)
+                .subscribe(new Subscriber<TopResponse>() {
+                    @Override
+                    public void onCompleted() {
 
-        call.enqueue(new Callback() {
+                    }
 
-            @Override
-            public void onResponse(Call call, Response response) {
-                if (response.isSuccessful()) {
-                    TopResponce topResponce = (TopResponce) response.body();
-//                    Log.i("message", topResponce.getStatus());
-                    List<Series> series = topResponce.getData();
-                    recyclerView.setAdapter(new CardAdapter(series));
-                    if (swipeRefreshLayout != null) {
+                    @Override
+                    public void onError(Throwable e) {
+                        Toast.makeText(getActivity(), "Network timeout, please retry.", Toast.LENGTH_SHORT).show();
                         swipeRefreshLayout.setRefreshing(false);
                     }
-                }
-            }
 
-            @Override
-            public void onFailure(Call call, Throwable t) {
-                Log.i("message", t.getMessage());
-            }
-        });
+                    @Override
+                    public void onNext(TopResponse response) {
+                        List<Series> series = response.getData();
+                        recyclerView.setAdapter(new CardAdapter(series));
+                        if (swipeRefreshLayout != null) {
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                    }
+                });
+
     }
 
     public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {

@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         JobInfo.Builder builder = new JobInfo.Builder(1, new ComponentName(getPackageName(), UpdateInfoService.class.getName()));
         builder.setPeriodic(900000);
         JobInfo jobInfo = builder.build();
+        updateScheduler.cancelAll();
         updateScheduler.schedule(jobInfo);
 
         Fabric.with(this, new Crashlytics());
