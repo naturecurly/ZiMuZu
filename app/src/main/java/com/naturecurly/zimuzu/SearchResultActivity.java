@@ -86,13 +86,17 @@ public class SearchResultActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             final SearchResult searchResult = dataSet.get(position);
-            holder.titleText.setText("[" + searchResult.getChannel() + "] " + searchResult.getTitle());
+            String channel = searchResult.getChannel().equals("") ? "sub" : searchResult.getChannel();
+
+            holder.titleText.setText("[" + channel + "] " + searchResult.getTitle());
             holder.typeText.setText(searchResult.getType());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (searchResult.getType().equals(getString(R.string.resource))) {
                         openDetail(searchResult.getItemId());
+                    } else if (searchResult.getType().equals(getString(R.string.subtitle))) {
+
                     }
                 }
             });
@@ -126,4 +130,5 @@ public class SearchResultActivity extends AppCompatActivity {
         intent.putExtras(bundle);
         startActivity(intent);
     }
+
 }

@@ -43,4 +43,8 @@
             android:summary="Set your own remote aria2 secret."
             android:title="@string/aria2_secret" />
     </PreferenceCategory>
+    <PreferenceCategory android:title="About">
+        <Preference android:title="@string/info_title" />
+        <Preference android:title="@string/help_title" />
+    </PreferenceCategory>
 </PreferenceScreen>

@@ -29,10 +29,13 @@ import com.naturecurly.zimuzu.Databases.FavDataScheme.FavTable;
 import com.naturecurly.zimuzu.Databases.UpdateDataScheme.UpdateTable;
 import com.naturecurly.zimuzu.NetworkServices.DownloadService;
 import com.naturecurly.zimuzu.NetworkServices.TodayUpdateService;
+import com.naturecurly.zimuzu.Presenters.UpdatePresenter;
+import com.naturecurly.zimuzu.Presenters.UpdatePresenterImpl;
 import com.naturecurly.zimuzu.R;
 import com.naturecurly.zimuzu.Utils.AccessUtils;
 import com.naturecurly.zimuzu.Utils.Base64Utils;
 import com.naturecurly.zimuzu.Utils.DatabaseUtils;
+import com.naturecurly.zimuzu.Views.UpdateView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +56,7 @@ import rx.schedulers.Schedulers;
  * Created by leveyleonhardt on 11/29/16.
  */
 
-public class UpdateFragment extends Fragment {
+public class UpdateFragment extends Fragment implements UpdateView {
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private List<Update> dataSet = new ArrayList<>();
@@ -63,31 +66,45 @@ public class UpdateFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        handler.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                readFromDatabase();
-//            }
-//        });
-//        readFromDatabase();
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_update, container, false);
+        final UpdatePresenter updatePresenter = new UpdatePresenterImpl(this);
+
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.update_swipe_refresh);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getUpdate();
+                updatePresenter.updateDate(getActivity());
             }
         });
         recyclerView = (RecyclerView) view.findViewById(R.id.update_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(new UpdateAdapter(dataSet));
-        new ReadDatabaseThread().start();
+
+        //read database
+        updatePresenter.readData();
         return view;
+    }
+
+    @Override
+    public void updateRecyclerView(List dataset) {
+        recyclerView.setAdapter(new UpdateAdapter(dataset));
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void failGetData() {
+        Toast.makeText(getActivity(), "Timeout, please try again.", Toast.LENGTH_SHORT).show();
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void unchaged() {
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     public class UpdateAdapter extends RecyclerView.Adapter<UpdateAdapter.ViewHolder> {
@@ -148,49 +165,49 @@ public class UpdateFragment extends Fragment {
     }
 
 
-    private void getUpdate() {
-        Retrofit retrofit = new Retrofit.Builder().addCallAdapterFactory(RxJavaCallAdapterFactory.create()).addConverterFactory(GsonConverterFactory.create()).baseUrl(getString(R.string.baseUrl)).build();
-        TodayUpdateService todayUpdateService = retrofit.create(TodayUpdateService.class);
-        Observable<UpdateResponse> getUpdate = todayUpdateService.getUpdate(AccessUtils.generateAccessKey(getActivity()));
-
-        getUpdate.subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .flatMap(new Func1<UpdateResponse, Observable<Boolean>>() {
-                    @Override
-                    public Observable<Boolean> call(UpdateResponse updateResponse) {
-                        return rxUpdateDatabase(updateResponse);
-                    }
-                })
-                .observeOn(Schedulers.io())
-                .flatMap(new Func1<Boolean, Observable<Boolean>>() {
-                    @Override
-                    public Observable<Boolean> call(Boolean aBoolean) {
-                        return rxReadDatabase(aBoolean);
-                    }
-                })
-                .observeOn(AndroidSchedulers.mainThread())
-                .retry(3)
-                .subscribe(new Subscriber<Boolean>() {
-                    @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        swipeRefreshLayout.setRefreshing(false);
-                        Toast.makeText(getActivity(), "Timeout, please try again.", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onNext(Boolean aBoolean) {
-                        if (aBoolean) {
-                            recyclerView.setAdapter(new UpdateAdapter(dataSet));
-                        }
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-
-                });
+//    private void getUpdate() {
+//        Retrofit retrofit = new Retrofit.Builder().addCallAdapterFactory(RxJavaCallAdapterFactory.create()).addConverterFactory(GsonConverterFactory.create()).baseUrl(getString(R.string.baseUrl)).build();
+//        TodayUpdateService todayUpdateService = retrofit.create(TodayUpdateService.class);
+//        Observable<UpdateResponse> getUpdate = todayUpdateService.getUpdate(AccessUtils.generateAccessKey(getActivity()));
+//
+//        getUpdate.retry(3)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.io())
+//                .flatMap(new Func1<UpdateResponse, Observable<Boolean>>() {
+//                    @Override
+//                    public Observable<Boolean> call(UpdateResponse updateResponse) {
+//                        return rxUpdateDatabase(updateResponse);
+//                    }
+//                })
+//                .observeOn(Schedulers.io())
+//                .flatMap(new Func1<Boolean, Observable<Boolean>>() {
+//                    @Override
+//                    public Observable<Boolean> call(Boolean aBoolean) {
+//                        return rxReadDatabase(aBoolean);
+//                    }
+//                })
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Subscriber<Boolean>() {
+//                    @Override
+//                    public void onCompleted() {
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        swipeRefreshLayout.setRefreshing(false);
+//                        Toast.makeText(getActivity(), "Timeout, please try again.", Toast.LENGTH_SHORT).show();
+//                    }
+//
+//                    @Override
+//                    public void onNext(Boolean aBoolean) {
+//                        if (aBoolean) {
+//                            recyclerView.setAdapter(new UpdateAdapter(dataSet));
+//                        }
+//                        swipeRefreshLayout.setRefreshing(false);
+//                    }
+//
+//                });
 //        Call call = todayUpdateService.getUpdate(AccessUtils.generateAccessKey(getActivity()));
 //        call.enqueue(new Callback() {
 //            @Override
@@ -205,144 +222,139 @@ public class UpdateFragment extends Fragment {
 //
 //            }
 //        });
-    }
+//    }
+
+//
+//    private Handler handler = new Handler(new Handler.Callback() {
+//        @Override
+//        public boolean handleMessage(Message message) {
+//            recyclerView.setAdapter(new UpdateAdapter(dataSet));
+//            swipeRefreshLayout.setRefreshing(false);
+//            return true;
+//        }
+//    });
+
+//    private class DatabaseThread extends Thread {
+//        private Response response;
+//
+//        public DatabaseThread(Response response) {
+//            this.response = response;
+//
+//        }
+//
+//        @Override
+//        public void run() {
+//            super.run();
+//            SharedPreferences preferences = getActivity().getSharedPreferences("zimuzu", Context.MODE_PRIVATE);
+//            int flag = preferences.getInt("updateId", 0);
+//            Log.i("download", flag + "");
+//            UpdateResponse updateResponse = (UpdateResponse) response.body();
+//            List<Update> updateList = updateResponse.getData();
+//            if (updateList.size() != 0) {
+//                preferences.edit().putInt("updateId", Integer.parseInt(updateList.get(0).getId())).apply();
+//            }
+//            for (Update item : updateList) {
+//                if (Integer.parseInt(item.getId()) > flag) {
+//                    Cursor cursor = DatabaseInstance.database.query(FavTable.NAME, null, FavTable.Cols.ID + "= ?", new String[]{item.getResourceid()}, null, null, null);
+//                    if (cursor.getCount() != 0) {
+//                        DatabaseInstance.database.insert(UpdateTable.NAME, null, DatabaseUtils.generateUpdateContentValues(item));
+//                    }
+//                    cursor.close();
+//                }
+//            }
+//            readFromDatabase();
+//            handler.sendMessage(Message.obtain(handler, 1));
+//
+//
+//        }
+//    }
+
+//
+//    private class ReadDatabaseThread extends Thread {
+//        @Override
+//        public void run() {
+//            super.run();
+//            readFromDatabase();
+//            handler.sendMessage(Message.obtain(handler, 2));
+//        }
+//    }
+//
+//    private void readFromDatabase() {
+//        dataSet = new ArrayList<>();
+//        Cursor cursor = DatabaseInstance.database.query(UpdateTable.NAME, null, null, null, null, null, "id" + " DESC");
+//        int idIndex = cursor.getColumnIndex(UpdateTable.Cols.ID);
+//        int resourceIndex = cursor.getColumnIndex(UpdateTable.Cols.RESOURCE);
+//        int nameIndex = cursor.getColumnIndex(UpdateTable.Cols.NAME);
+//        int formatIndex = cursor.getColumnIndex(UpdateTable.Cols.FORMAT);
+//        int seasonIndex = cursor.getColumnIndex(UpdateTable.Cols.SEASON);
+//        int episodeIndex = cursor.getColumnIndex(UpdateTable.Cols.EPISODE);
+//        int sizeIndex = cursor.getColumnIndex(UpdateTable.Cols.SIZE);
+//        int cnnameIndex = cursor.getColumnIndex(UpdateTable.Cols.CNNAME);
+//        int channelIndex = cursor.getColumnIndex(UpdateTable.Cols.CHANNEL);
+//        int linkIndex = cursor.getColumnIndex(UpdateTable.Cols.WAY);
+//
+//        while (cursor.moveToNext()) {
+//            Update update = new Update(cursor.getString(idIndex), cursor.getString(resourceIndex), cursor.getString(nameIndex), cursor.getString(formatIndex), cursor.getString(seasonIndex), cursor.getString(episodeIndex), cursor.getString(sizeIndex), cursor.getString(cnnameIndex), cursor.getString(channelIndex), cursor.getString(linkIndex));
+//            dataSet.add(update);
+//        }
+//        cursor.close();
+//    }
 
 
-    private Handler handler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message message) {
-            recyclerView.setAdapter(new UpdateAdapter(dataSet));
-            swipeRefreshLayout.setRefreshing(false);
-            return true;
-        }
-    });
-
-    private class DatabaseThread extends Thread {
-        private Response response;
-
-        public DatabaseThread(Response response) {
-            this.response = response;
-
-        }
-
-        @Override
-        public void run() {
-            super.run();
-            SharedPreferences preferences = getActivity().getSharedPreferences("zimuzu", Context.MODE_PRIVATE);
-            int flag = preferences.getInt("updateId", 0);
-            Log.i("download", flag + "");
-            UpdateResponse updateResponse = (UpdateResponse) response.body();
-            List<Update> updateList = updateResponse.getData();
-            if (updateList.size() != 0) {
-                preferences.edit().putInt("updateId", Integer.parseInt(updateList.get(0).getId())).apply();
-            }
-            for (Update item : updateList) {
-                if (Integer.parseInt(item.getId()) > flag) {
-                    Cursor cursor = DatabaseInstance.database.query(FavTable.NAME, null, FavTable.Cols.ID + "= ?", new String[]{item.getResourceid()}, null, null, null);
-                    if (cursor.getCount() != 0) {
-                        DatabaseInstance.database.insert(UpdateTable.NAME, null, DatabaseUtils.generateUpdateContentValues(item));
-                    }
-                    cursor.close();
-                }
-            }
-            readFromDatabase();
-            handler.sendMessage(Message.obtain(handler, 1));
-
-
-        }
-    }
-
-
-    private class ReadDatabaseThread extends Thread {
-        @Override
-        public void run() {
-            super.run();
-            readFromDatabase();
-            handler.sendMessage(Message.obtain(handler, 2));
-        }
-    }
-
-    private void readFromDatabase() {
-        dataSet = new ArrayList<>();
-        Cursor cursor = DatabaseInstance.database.query(UpdateTable.NAME, null, null, null, null, null, "id" + " DESC");
-        int idIndex = cursor.getColumnIndex(UpdateTable.Cols.ID);
-        int resourceIndex = cursor.getColumnIndex(UpdateTable.Cols.RESOURCE);
-        int nameIndex = cursor.getColumnIndex(UpdateTable.Cols.NAME);
-        int formatIndex = cursor.getColumnIndex(UpdateTable.Cols.FORMAT);
-        int seasonIndex = cursor.getColumnIndex(UpdateTable.Cols.SEASON);
-        int episodeIndex = cursor.getColumnIndex(UpdateTable.Cols.EPISODE);
-        int sizeIndex = cursor.getColumnIndex(UpdateTable.Cols.SIZE);
-        int cnnameIndex = cursor.getColumnIndex(UpdateTable.Cols.CNNAME);
-        int channelIndex = cursor.getColumnIndex(UpdateTable.Cols.CHANNEL);
-        int linkIndex = cursor.getColumnIndex(UpdateTable.Cols.WAY);
-
-        while (cursor.moveToNext()) {
-            Update update = new Update(cursor.getString(idIndex), cursor.getString(resourceIndex), cursor.getString(nameIndex), cursor.getString(formatIndex), cursor.getString(seasonIndex), cursor.getString(episodeIndex), cursor.getString(sizeIndex), cursor.getString(cnnameIndex), cursor.getString(channelIndex), cursor.getString(linkIndex));
-            dataSet.add(update);
-        }
-        cursor.close();
-    }
-
-
-    private Observable<Boolean> rxUpdateDatabase(UpdateResponse updateResponse) {
-        boolean hasUpdate = false;
-        SharedPreferences preferences = getActivity().getSharedPreferences("zimuzu", Context.MODE_PRIVATE);
-        int flag = preferences.getInt("updateId", 0);
-//        Log.i("download", flag + "");
-        List<Update> updateList = updateResponse.getData();
-        if (updateList.size() != 0) {
-            preferences.edit().putInt("updateId", Integer.parseInt(updateList.get(0).getId())).apply();
-        }
-        for (Update item : updateList) {
-            if (Integer.parseInt(item.getId()) > flag) {
-                Cursor cursor = DatabaseInstance.database.query(FavTable.NAME, null, FavTable.Cols.ID + "= ?", new String[]{item.getResourceid()}, null, null, null);
-                Cursor cursor2 = DatabaseInstance.database.query(UpdateTable.NAME, null, UpdateTable.Cols.ID + "= ?", new String[]{item.getId()}, null, null, null);
-                if (cursor.getCount() != 0 && cursor2.getCount() == 0) {
-                    if (DatabaseInstance.database.insert(UpdateTable.NAME, null, DatabaseUtils.generateUpdateContentValues(item)) != -1) {
-                        hasUpdate = true;
-                    }
-                }
-                cursor.close();
-                cursor2.close();
-            }
-        }
-        final boolean finalHasUpdate = hasUpdate;
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-            @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
-                subscriber.onNext(finalHasUpdate);
-            }
-        });
-    }
-
-    private Observable<Boolean> rxReadDatabase(final Boolean hasUpdate) {
-        if (hasUpdate) {
-            dataSet = new ArrayList<>();
-            Cursor cursor = DatabaseInstance.database.query(UpdateTable.NAME, null, null, null, null, null, "id" + " DESC");
-            int idIndex = cursor.getColumnIndex(UpdateTable.Cols.ID);
-            int resourceIndex = cursor.getColumnIndex(UpdateTable.Cols.RESOURCE);
-            int nameIndex = cursor.getColumnIndex(UpdateTable.Cols.NAME);
-            int formatIndex = cursor.getColumnIndex(UpdateTable.Cols.FORMAT);
-            int seasonIndex = cursor.getColumnIndex(UpdateTable.Cols.SEASON);
-            int episodeIndex = cursor.getColumnIndex(UpdateTable.Cols.EPISODE);
-            int sizeIndex = cursor.getColumnIndex(UpdateTable.Cols.SIZE);
-            int cnnameIndex = cursor.getColumnIndex(UpdateTable.Cols.CNNAME);
-            int channelIndex = cursor.getColumnIndex(UpdateTable.Cols.CHANNEL);
-            int linkIndex = cursor.getColumnIndex(UpdateTable.Cols.WAY);
-
-            while (cursor.moveToNext()) {
-                Update update = new Update(cursor.getString(idIndex), cursor.getString(resourceIndex), cursor.getString(nameIndex), cursor.getString(formatIndex), cursor.getString(seasonIndex), cursor.getString(episodeIndex), cursor.getString(sizeIndex), cursor.getString(cnnameIndex), cursor.getString(channelIndex), cursor.getString(linkIndex));
-                dataSet.add(update);
-            }
-            cursor.close();
-        }
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-            @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
-                subscriber.onNext(hasUpdate);
-            }
-        });
-    }
+//    private Observable<Boolean> rxUpdateDatabase(UpdateResponse updateResponse) {
+//        boolean hasUpdate = false;
+//        SharedPreferences preferences = getActivity().getSharedPreferences("zimuzu", Context.MODE_PRIVATE);
+//        int flag = preferences.getInt("updateId", 0);
+////        Log.i("download", flag + "");
+//        List<Update> updateList = updateResponse.getData();
+//        if (updateList.size() != 0) {
+//            preferences.edit().putInt("updateId", Integer.parseInt(updateList.get(0).getId())).apply();
+//        }
+//        for (Update item : updateList) {
+//            if (Integer.parseInt(item.getId()) > flag) {
+//                Cursor cursor = DatabaseInstance.database.query(FavTable.NAME, null, FavTable.Cols.ID + "= ?", new String[]{item.getResourceid()}, null, null, null);
+//                Cursor cursor2 = DatabaseInstance.database.query(UpdateTable.NAME, null, UpdateTable.Cols.ID + "= ?", new String[]{item.getId()}, null, null, null);
+//                if (cursor.getCount() != 0 && cursor2.getCount() == 0) {
+//                    if (DatabaseInstance.database.insert(UpdateTable.NAME, null, DatabaseUtils.generateUpdateContentValues(item)) != -1) {
+//                        hasUpdate = true;
+//                    }
+//                }
+//                if (cursor != null) {
+//                    cursor.close();
+//                }
+//                if (cursor2 != null) {
+//                    cursor2.close();
+//                }
+//            }
+//        }
+//        return Observable.just(hasUpdate);
+//    }
+//
+//    private Observable<Boolean> rxReadDatabase(final Boolean hasUpdate) {
+//        if (hasUpdate) {
+//            dataSet = new ArrayList<>();
+//            Cursor cursor = DatabaseInstance.database.query(UpdateTable.NAME, null, null, null, null, null, "id" + " DESC");
+//            int idIndex = cursor.getColumnIndex(UpdateTable.Cols.ID);
+//            int resourceIndex = cursor.getColumnIndex(UpdateTable.Cols.RESOURCE);
+//            int nameIndex = cursor.getColumnIndex(UpdateTable.Cols.NAME);
+//            int formatIndex = cursor.getColumnIndex(UpdateTable.Cols.FORMAT);
+//            int seasonIndex = cursor.getColumnIndex(UpdateTable.Cols.SEASON);
+//            int episodeIndex = cursor.getColumnIndex(UpdateTable.Cols.EPISODE);
+//            int sizeIndex = cursor.getColumnIndex(UpdateTable.Cols.SIZE);
+//            int cnnameIndex = cursor.getColumnIndex(UpdateTable.Cols.CNNAME);
+//            int channelIndex = cursor.getColumnIndex(UpdateTable.Cols.CHANNEL);
+//            int linkIndex = cursor.getColumnIndex(UpdateTable.Cols.WAY);
+//
+//            while (cursor.moveToNext()) {
+//                Update update = new Update(cursor.getString(idIndex), cursor.getString(resourceIndex), cursor.getString(nameIndex), cursor.getString(formatIndex), cursor.getString(seasonIndex), cursor.getString(episodeIndex), cursor.getString(sizeIndex), cursor.getString(cnnameIndex), cursor.getString(channelIndex), cursor.getString(linkIndex));
+//                dataSet.add(update);
+//            }
+//            if (cursor != null) {
+//                cursor.close();
+//            }
+//        }
+//        return Observable.just(hasUpdate);
+//    }
 
 
     private void remoteDownload(String url) {

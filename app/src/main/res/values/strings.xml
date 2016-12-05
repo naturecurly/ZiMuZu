@@ -19,4 +19,7 @@
     <string name="remote_address">Remote Download Address</string>
     <string name="download_address_key">download_address</string>
     <string name="download_secret">download_secret</string>
+    <string name="info_title">Info</string>
+    <string name="help_title">Help</string>
+    <string name="subtitle">subtitle</string>
 </resources>

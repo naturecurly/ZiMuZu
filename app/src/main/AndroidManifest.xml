@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.naturecurly.zimuzu">
 
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:allowBackup="true"
         android:icon="@drawable/logo"
@@ -18,10 +18,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SeriesDetailActivity"></activity>
-        <activity android:name=".SearchResultActivity"></activity>
-        <activity android:name=".NewsActivity"></activity>
-        <activity android:name=".SettingActivity"></activity>
+        <activity android:name=".SeriesDetailActivity"/>
+        <activity android:name=".SearchResultActivity"/>
+        <activity android:name=".NewsActivity"/>
+        <activity android:name=".SettingActivity"/>
 
         <service
             android:name=".Services.UpdateInfoService"

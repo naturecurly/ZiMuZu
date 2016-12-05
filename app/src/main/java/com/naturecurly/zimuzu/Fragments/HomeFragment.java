@@ -20,9 +20,12 @@ import com.naturecurly.zimuzu.Bean.News;
 import com.naturecurly.zimuzu.Bean.NewsResponse;
 import com.naturecurly.zimuzu.NetworkServices.NewsService;
 import com.naturecurly.zimuzu.NewsActivity;
+import com.naturecurly.zimuzu.Presenters.NewsPresenter;
+import com.naturecurly.zimuzu.Presenters.NewsPresenterImpl;
 import com.naturecurly.zimuzu.R;
 import com.naturecurly.zimuzu.Utils.AccessUtils;
 import com.naturecurly.zimuzu.Utils.DateUtils;
+import com.naturecurly.zimuzu.Views.NewsView;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -43,7 +46,7 @@ import rx.schedulers.Schedulers;
  * Created by leveyleonhardt on 11/26/16.
  */
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements NewsView {
     private List<News> dataSet = new ArrayList<>();
     private RecyclerView recyclerView;
     private LinkedHashMap<String, String> typeMap = new LinkedHashMap<>();
@@ -59,6 +62,7 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_home, container, false);
+        final NewsPresenter newsPresenter = new NewsPresenterImpl(this);
         page = 1;
         recyclerView = (RecyclerView) view.findViewById(R.id.news_recycler_view);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.news_swipe_refresh);
@@ -68,7 +72,8 @@ public class HomeFragment extends Fragment {
             public void onRefresh() {
                 page = 1;
                 dataSet = new ArrayList<News>();
-                fetchNews(page);
+                newsPresenter.getNews(getActivity(), page);
+//                fetchNews(page);
             }
         });
         linearLayoutManager = new LinearLayoutManager(getActivity());
@@ -93,7 +98,9 @@ public class HomeFragment extends Fragment {
                         loading = true;
                         page = page + 1;
                         swipeRefreshLayout.setRefreshing(true);
-                        fetchNews(page);
+                        newsPresenter.getNews(getActivity(), page);
+
+//                        fetchNews(page);
                         loading = false;
                     }
                 }
@@ -105,8 +112,31 @@ public class HomeFragment extends Fragment {
         for (int i = 0; i < keys.length; i++) {
             typeMap.put(keys[i], values[i]);
         }
-        fetchNews(page);
+        newsPresenter.getNews(getActivity(), page);
+//        fetchNews(page);
         return view;
+    }
+
+    @Override
+    public void updateRecyclerView(List newsData) {
+        if (page == 1) {
+            dataSet = newsData;
+            recyclerView.setAdapter(new NewsAdapter(dataSet));
+        } else if (page > 1) {
+            dataSet.addAll(newsData);
+            recyclerView.getAdapter().notifyDataSetChanged();
+        }
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    @Override
+    public void failGetData() {
+        Toast.makeText(getActivity(), "Timeout, please try again.", Toast.LENGTH_SHORT).show();
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
 
@@ -167,62 +197,62 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void fetchNews(final int page) {
-        Retrofit retrofit = new Retrofit.Builder().addCallAdapterFactory(RxJavaCallAdapterFactory.create()).addConverterFactory(GsonConverterFactory.create()).baseUrl(getString(R.string.baseUrl)).build();
-        NewsService newsService = retrofit.create(NewsService.class);
-        Observable fetchNews = newsService.fetchNews(AccessUtils.generateAccessKey(getActivity()), "15", page + "");
-        fetchNews.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .retry(3)
-                .subscribe(new Subscriber<NewsResponse>() {
-                    @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Toast.makeText(getActivity(), "Network timeout, please retry.", Toast.LENGTH_SHORT).show();
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-
-                    @Override
-                    public void onNext(NewsResponse newsResponse) {
-                        dataSet.addAll(newsResponse.getData());
-                        if (page != 1) {
-                            recyclerView.getAdapter().notifyDataSetChanged();
-                        } else {
-                            recyclerView.setAdapter(new NewsAdapter(dataSet));
-                        }
-                        if (swipeRefreshLayout != null) {
-                            swipeRefreshLayout.setRefreshing(false);
-                        }
-                    }
-                });
-
-//        Call call = newsService.fetchNews(AccessUtils.generateAccessKey(getActivity()), "15", page + "");
-//        call.enqueue(new Callback() {
-//            @Override
-//            public void onResponse(Call call, Response response) {
-//                if (response.isSuccessful()) {
-//                    NewsResponse newsResponse = (NewsResponse) response.body();
-//                    dataSet.addAll(newsResponse.getData());
-//                    if (page != 1) {
-//                        recyclerView.getAdapter().notifyDataSetChanged();
-//                    } else {
-//                        recyclerView.setAdapter(new NewsAdapter(dataSet));
+//    private void fetchNews(final int page) {
+//        Retrofit retrofit = new Retrofit.Builder().addCallAdapterFactory(RxJavaCallAdapterFactory.create()).addConverterFactory(GsonConverterFactory.create()).baseUrl(getString(R.string.baseUrl)).build();
+//        NewsService newsService = retrofit.create(NewsService.class);
+//        Observable fetchNews = newsService.fetchNews(AccessUtils.generateAccessKey(getActivity()), "15", page + "");
+//        fetchNews.retry(3)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Subscriber<NewsResponse>() {
+//                    @Override
+//                    public void onCompleted() {
+//
 //                    }
-//                    if (swipeRefreshLayout != null) {
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        Toast.makeText(getActivity(), "Network timeout, please retry.", Toast.LENGTH_SHORT).show();
 //                        swipeRefreshLayout.setRefreshing(false);
 //                    }
-//                }
-//            }
 //
-//            @Override
-//            public void onFailure(Call call, Throwable t) {
+//                    @Override
+//                    public void onNext(NewsResponse newsResponse) {
+//                        dataSet.addAll(newsResponse.getData());
+//                        if (page != 1) {
+//                            recyclerView.getAdapter().notifyDataSetChanged();
+//                        } else {
+//                            recyclerView.setAdapter(new NewsAdapter(dataSet));
+//                        }
+//                        if (swipeRefreshLayout != null) {
+//                            swipeRefreshLayout.setRefreshing(false);
+//                        }
+//                    }
+//                });
 //
-//            }
-//        });
-    }
+////        Call call = newsService.fetchNews(AccessUtils.generateAccessKey(getActivity()), "15", page + "");
+////        call.enqueue(new Callback() {
+////            @Override
+////            public void onResponse(Call call, Response response) {
+////                if (response.isSuccessful()) {
+////                    NewsResponse newsResponse = (NewsResponse) response.body();
+////                    dataSet.addAll(newsResponse.getData());
+////                    if (page != 1) {
+////                        recyclerView.getAdapter().notifyDataSetChanged();
+////                    } else {
+////                        recyclerView.setAdapter(new NewsAdapter(dataSet));
+////                    }
+////                    if (swipeRefreshLayout != null) {
+////                        swipeRefreshLayout.setRefreshing(false);
+////                    }
+////                }
+////            }
+////
+////            @Override
+////            public void onFailure(Call call, Throwable t) {
+////
+////            }
+////        });
+//    }
 
 }

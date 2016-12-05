@@ -19,9 +19,12 @@ import android.widget.Toast;
 import com.naturecurly.zimuzu.Bean.Series;
 import com.naturecurly.zimuzu.Bean.TopResponse;
 import com.naturecurly.zimuzu.NetworkServices.RankService;
+import com.naturecurly.zimuzu.Presenters.RankPresenter;
+import com.naturecurly.zimuzu.Presenters.RankPresenterImpl;
 import com.naturecurly.zimuzu.R;
 import com.naturecurly.zimuzu.SeriesDetailActivity;
 import com.naturecurly.zimuzu.Utils.AccessUtils;
+import com.naturecurly.zimuzu.Views.RankView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +46,7 @@ import rx.schedulers.Schedulers;
  * Created by leveyleonhardt on 11/26/16.
  */
 
-public class RankFragment extends Fragment {
+public class RankFragment extends Fragment implements RankView {
 
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -53,6 +56,7 @@ public class RankFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_rank, container, false);
+        final RankPresenter rankPresenter = new RankPresenterImpl(this);
         recyclerView = (RecyclerView) view.findViewById(R.id.rank_recycler_view);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -61,48 +65,64 @@ public class RankFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getTopContent();
+                rankPresenter.getRank(getActivity());
+//                getTopContent();
             }
         });
-        getTopContent();
+        rankPresenter.getRank(getActivity());
+//        getTopContent();
         return view;
     }
 
-    private void getTopContent() {
-        Retrofit retrofit = new Retrofit.Builder().addCallAdapterFactory(RxJavaCallAdapterFactory.create()).addConverterFactory(GsonConverterFactory.create()).baseUrl(getString(R.string.baseUrl)).build();
-        RankService rankService = retrofit.create(RankService.class);
-        Map<String, String> paramsMap = AccessUtils.generateAccessKey(getActivity());
-//        for (Map.Entry entry : paramsMap.entrySet()) {
-//            Log.i("entry", entry.getKey() + ": " + entry.getValue());
-//        }
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        Observable<TopResponse> rank = rankService.getTop(paramsMap, sharedPreferences.getString(getString(R.string.rank_number_key), getString(R.string.rank_limit)));
-        rank.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .retry(3)
-                .subscribe(new Subscriber<TopResponse>() {
-                    @Override
-                    public void onCompleted() {
+//    private void getTopContent() {
+//        Retrofit retrofit = new Retrofit.Builder().addCallAdapterFactory(RxJavaCallAdapterFactory.create()).addConverterFactory(GsonConverterFactory.create()).baseUrl(getString(R.string.baseUrl)).build();
+//        RankService rankService = retrofit.create(RankService.class);
+//        Map<String, String> paramsMap = AccessUtils.generateAccessKey(getActivity());
+//        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//        Observable<TopResponse> rank = rankService.getTop(paramsMap, sharedPreferences.getString(getString(R.string.rank_number_key), getString(R.string.rank_limit)));
+//        rank.retry(3)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Subscriber<TopResponse>() {
+//                    @Override
+//                    public void onCompleted() {
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        Toast.makeText(getActivity(), "Network timeout, please retry.", Toast.LENGTH_SHORT).show();
+//                        swipeRefreshLayout.setRefreshing(false);
+//                    }
+//
+//                    @Override
+//                    public void onNext(TopResponse response) {
+//                        List<Series> series = response.getData();
+//                        recyclerView.setAdapter(new CardAdapter(series));
+//                        if (swipeRefreshLayout != null) {
+//                            swipeRefreshLayout.setRefreshing(false);
+//                        }
+//                    }
+//                });
+//
+//    }
 
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Toast.makeText(getActivity(), "Network timeout, please retry.", Toast.LENGTH_SHORT).show();
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-
-                    @Override
-                    public void onNext(TopResponse response) {
-                        List<Series> series = response.getData();
-                        recyclerView.setAdapter(new CardAdapter(series));
-                        if (swipeRefreshLayout != null) {
-                            swipeRefreshLayout.setRefreshing(false);
-                        }
-                    }
-                });
-
+    @Override
+    public void updateRecyclerView(List dataSet) {
+        recyclerView.setAdapter(new CardAdapter(dataSet));
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
+
+    @Override
+    public void failGetData() {
+        Toast.makeText(getActivity(), "Timeout, please try again.", Toast.LENGTH_SHORT).show();
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
 
     public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         private List<Series> dataSet;
