@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.naturecurly.zimuzu.Bean.Episode;
+import com.naturecurly.zimuzu.Databases.EpisodeDataScheme.EpisodeTable;
 import com.naturecurly.zimuzu.Databases.FavDataScheme.FavTable;
 import com.naturecurly.zimuzu.Databases.UpdateDataScheme.UpdateTable;
 
@@ -12,7 +14,7 @@ import com.naturecurly.zimuzu.Databases.UpdateDataScheme.UpdateTable;
  */
 
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
-    private static final int VERSION = 2;
+    private static final int VERSION = 3;
     public static final String DATABASE_NAME = "zimuzu.db";
 
     public DatabaseOpenHelper(Context context) {
@@ -49,6 +51,13 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 UpdateTable.Cols.WAY +
                 ")"
         );
+        //create episode table
+        sqLiteDatabase.execSQL("create table " + EpisodeTable.NAME + "(" +
+                "_id integer primary key autoincrement, " +
+                EpisodeTable.Cols.RESOURCE + " unique, " +
+                EpisodeTable.Cols.WATCHED +
+                ")"
+        );
     }
 
     @Override
@@ -67,6 +76,22 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                     UpdateTable.Cols.CNNAME + ", " +
                     UpdateTable.Cols.CHANNEL + ", " +
                     UpdateTable.Cols.WAY +
+                    ")"
+            );
+
+            sqLiteDatabase.execSQL("create table " + EpisodeTable.NAME + "(" +
+                    "_id integer primary key autoincrement, " +
+                    EpisodeTable.Cols.RESOURCE + " unique, " +
+                    EpisodeTable.Cols.WATCHED +
+                    ")"
+            );
+        }
+
+        if (oldVersion == 2) {
+            sqLiteDatabase.execSQL("create table " + EpisodeTable.NAME + "(" +
+                    "_id integer primary key autoincrement, " +
+                    EpisodeTable.Cols.RESOURCE + " unique, " +
+                    EpisodeTable.Cols.WATCHED +
                     ")"
             );
         }

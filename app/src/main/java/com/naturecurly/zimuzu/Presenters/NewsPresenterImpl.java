@@ -2,6 +2,7 @@ package com.naturecurly.zimuzu.Presenters;
 
 import android.content.Context;
 
+import com.naturecurly.zimuzu.Bean.NewsDetail;
 import com.naturecurly.zimuzu.Databases.NewsModel;
 import com.naturecurly.zimuzu.Databases.NewsModelImpl;
 import com.naturecurly.zimuzu.Listeners.OnLoadUpdateFinishedListener;
@@ -31,6 +32,11 @@ public class NewsPresenterImpl implements NewsPresenter, OnLoadUpdateFinishedLis
     @Override
     public void success(List dataSet) {
         newsView.updateRecyclerView(dataSet);
+    }
+
+    @Override
+    public void success(NewsDetail newsDetail) {
+
     }
 
     @Override

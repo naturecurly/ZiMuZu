@@ -60,7 +60,7 @@ public class UpdateModelImpl implements UpdateModel {
         getUpdate.retry(3)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .flatMap(new Func1<UpdateResponse, Observable<Boolean>>() {
+                .concatMap(new Func1<UpdateResponse, Observable<Boolean>>() {
                     @Override
                     public Observable<Boolean> call(UpdateResponse updateResponse) {
                         return Observable.fromCallable(getWriteCallable(context, updateResponse));
@@ -126,21 +126,21 @@ public class UpdateModelImpl implements UpdateModel {
                     preferences.edit().putInt("updateId", Integer.parseInt(updateList.get(0).getId())).apply();
                 }
                 for (Update item : updateList) {
-                    if (Integer.parseInt(item.getId()) > flag) {
-                        Cursor cursor = DatabaseInstance.database.query(FavDataScheme.FavTable.NAME, null, FavDataScheme.FavTable.Cols.ID + "= ?", new String[]{item.getResourceid()}, null, null, null);
-                        Cursor cursor2 = DatabaseInstance.database.query(UpdateDataScheme.UpdateTable.NAME, null, UpdateDataScheme.UpdateTable.Cols.ID + "= ?", new String[]{item.getId()}, null, null, null);
-                        if (cursor.getCount() != 0 && cursor2.getCount() == 0) {
-                            if (DatabaseInstance.database.insert(UpdateDataScheme.UpdateTable.NAME, null, DatabaseUtils.generateUpdateContentValues(item)) != -1) {
-                                hasUpdate = true;
-                            }
-                        }
-                        if (cursor != null) {
-                            cursor.close();
-                        }
-                        if (cursor2 != null) {
-                            cursor2.close();
+//                    if (Integer.parseInt(item.getId()) > flag) {
+                    Cursor cursor = DatabaseInstance.database.query(FavDataScheme.FavTable.NAME, null, FavDataScheme.FavTable.Cols.ID + "= ?", new String[]{item.getResourceid()}, null, null, null);
+                    Cursor cursor2 = DatabaseInstance.database.query(UpdateDataScheme.UpdateTable.NAME, null, UpdateDataScheme.UpdateTable.Cols.ID + "= ?", new String[]{item.getId()}, null, null, null);
+                    if (cursor.getCount() != 0 && cursor2.getCount() == 0) {
+                        if (DatabaseInstance.database.insert(UpdateDataScheme.UpdateTable.NAME, null, DatabaseUtils.generateUpdateContentValues(item)) != -1) {
+                            hasUpdate = true;
                         }
                     }
+                    if (cursor != null) {
+                        cursor.close();
+                    }
+                    if (cursor2 != null) {
+                        cursor2.close();
+                    }
+//                    }
                 }
                 return hasUpdate;
             }

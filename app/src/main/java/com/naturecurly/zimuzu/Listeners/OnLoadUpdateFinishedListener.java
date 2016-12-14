@@ -1,5 +1,7 @@
 package com.naturecurly.zimuzu.Listeners;
 
+import com.naturecurly.zimuzu.Bean.NewsDetail;
+
 import java.util.List;
 
 /**
@@ -8,6 +10,8 @@ import java.util.List;
 
 public interface OnLoadUpdateFinishedListener {
     void success(List dataSet);
+
+    void success(NewsDetail newsDetail);
 
     void fail();
 

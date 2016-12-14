@@ -8,6 +8,7 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
+import rx.Observable;
 
 /**
  * Created by leveyleonhardt on 11/27/16.
@@ -15,5 +16,5 @@ import retrofit2.http.QueryMap;
 
 public interface NewsDetailService {
     @GET("article/getinfo")
-    Call<NewsDetailResponse> getInfo(@QueryMap Map<String, String> accessInfo, @Query("id") String id);
+    Observable<NewsDetailResponse> getInfo(@QueryMap Map<String, String> accessInfo, @Query("id") String id);
 }

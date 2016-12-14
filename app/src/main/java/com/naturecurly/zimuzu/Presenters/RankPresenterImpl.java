@@ -2,6 +2,7 @@ package com.naturecurly.zimuzu.Presenters;
 
 import android.content.Context;
 
+import com.naturecurly.zimuzu.Bean.NewsDetail;
 import com.naturecurly.zimuzu.Databases.RankModel;
 import com.naturecurly.zimuzu.Databases.RankModelImpl;
 import com.naturecurly.zimuzu.Listeners.OnLoadUpdateFinishedListener;
@@ -31,6 +32,11 @@ public class RankPresenterImpl implements RankPresenter, OnLoadUpdateFinishedLis
     @Override
     public void success(List dataSet) {
         rankView.updateRecyclerView(dataSet);
+    }
+
+    @Override
+    public void success(NewsDetail newsDetail) {
+
     }
 
     @Override

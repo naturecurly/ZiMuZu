@@ -5,7 +5,8 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.naturecurly.zimuzu.MainActivity">
+    tools:context="com.naturecurly.zimuzu.MainActivity"
+    >
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"

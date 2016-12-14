@@ -8,4 +8,5 @@
     <color name="divider_color">#9e9e9e</color>
     <color name="floating_button_background">#afc2c2c2</color>
     <color name="update_flag">#1e88e5</color>
+    <color name="episode_unchecked">#b8bdbdbd</color>
 </resources>

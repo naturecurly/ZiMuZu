@@ -22,4 +22,20 @@
     <string name="info_title">Info</string>
     <string name="help_title">Help</string>
     <string name="subtitle">subtitle</string>
+    <string name="send_to">Share article using</string>
+    <string name="version_info">version</string>
+    <string name="help_key">help</string>
+    <string name="help_content">\u2022 This app is designed for those who love American/British TV shows.\n
+    这个软件是专为英美剧迷设计的\n\n
+\u2022 Users can get the realtime rankings of TV shows from ZiMuZu website.\n
+    用户可以实时获得人人字幕组网站的剧集排名\n\n
+\u2022 The News tab provides various reviews of TV and movie.\n    新闻界面提供了各种剧集电影的评论\n\n
+\u2022 As long as some TV shows are added to the Favorite,\n
+    只要剧集被加入到收藏夹\n\n
+\u2022 further updates will be pushed automatically.\n
+    更新将会自动推送\n\n
+\u2022 The remote download function requires users to set their Aria2 address and secret.\n
+    远程下载功能需要用户设置个人Aria2地址和密钥\n\n
+\u2022 Do not forget add the port number and \"/\" at the end of your address.\n
+    地址最后不要忘记添加端口号和正斜杠\"/\"</string>
 </resources>

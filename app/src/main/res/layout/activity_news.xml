@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/news_activity_frame"
     android:layout_width="match_parent"
@@ -45,4 +46,14 @@
 
         </LinearLayout>
     </ScrollView>
-</LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_share"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="48dp"
+        android:layout_marginRight="16dp"
+        app:backgroundTint="@color/floating_button_background"
+        app:srcCompat="@drawable/ic_share" />
+</FrameLayout>

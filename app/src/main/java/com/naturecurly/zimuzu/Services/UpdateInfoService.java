@@ -77,7 +77,7 @@ public class UpdateInfoService extends JobService {
         Observable<UpdateResponse> getUpdate = todayUpdateService.getUpdate(AccessUtils.generateAccessKey(getApplicationContext()));
         getUpdate.subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .flatMap(new Func1<UpdateResponse, Observable<Boolean>>() {
+                .concatMap(new Func1<UpdateResponse, Observable<Boolean>>() {
                     @Override
                     public Observable<Boolean> call(UpdateResponse updateResponse) {
                         return rxUpdateDatabase(updateResponse);
@@ -136,18 +136,19 @@ public class UpdateInfoService extends JobService {
         if (updateList.size() != 0) {
             preferences.edit().putInt("updateId", Integer.parseInt(updateList.get(0).getId())).apply();
         }
+        Log.i("service", flag + "");
         for (Update item : updateList) {
-            if (Integer.parseInt(item.getId()) > flag) {
-                Cursor cursor = DatabaseInstance.database.query(FavTable.NAME, null, FavTable.Cols.ID + "= ?", new String[]{item.getResourceid()}, null, null, null);
-                Cursor cursor2 = DatabaseInstance.database.query(UpdateTable.NAME, null, UpdateTable.Cols.ID + "= ?", new String[]{item.getId()}, null, null, null);
-                if (cursor.getCount() != 0 && cursor2.getCount() == 0) {
-                    if (DatabaseInstance.database.insert(UpdateTable.NAME, null, DatabaseUtils.generateUpdateContentValues(item)) != -1) {
-                        hasUpdate = true;
-                    }
+//            if (Integer.parseInt(item.getId()) > flag) {
+            Cursor cursor = DatabaseInstance.database.query(FavTable.NAME, null, FavTable.Cols.ID + "= ?", new String[]{item.getResourceid()}, null, null, null);
+            Cursor cursor2 = DatabaseInstance.database.query(UpdateTable.NAME, null, UpdateTable.Cols.ID + "= ?", new String[]{item.getId()}, null, null, null);
+            if (cursor.getCount() != 0 && cursor2.getCount() == 0) {
+                if (DatabaseInstance.database.insert(UpdateTable.NAME, null, DatabaseUtils.generateUpdateContentValues(item)) != -1) {
+                    hasUpdate = true;
                 }
-                cursor.close();
-                cursor2.close();
             }
+            cursor.close();
+            cursor2.close();
+//            }
         }
         final boolean finalHasUpdate = hasUpdate;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {

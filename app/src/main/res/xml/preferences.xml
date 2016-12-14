@@ -44,7 +44,11 @@
             android:title="@string/aria2_secret" />
     </PreferenceCategory>
     <PreferenceCategory android:title="About">
-        <Preference android:title="@string/info_title" />
-        <Preference android:title="@string/help_title" />
+        <Preference
+            android:key="@string/help_key"
+            android:title="@string/help_title" />
+        <Preference
+            android:key="@string/version_info"
+            android:title="@string/info_title" />
     </PreferenceCategory>
 </PreferenceScreen>

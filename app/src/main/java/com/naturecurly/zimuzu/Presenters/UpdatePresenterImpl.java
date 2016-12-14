@@ -2,6 +2,7 @@ package com.naturecurly.zimuzu.Presenters;
 
 import android.content.Context;
 
+import com.naturecurly.zimuzu.Bean.NewsDetail;
 import com.naturecurly.zimuzu.Bean.Update;
 import com.naturecurly.zimuzu.Databases.UpdateModel;
 import com.naturecurly.zimuzu.Databases.UpdateModelImpl;
@@ -36,6 +37,11 @@ public class UpdatePresenterImpl implements UpdatePresenter, OnLoadUpdateFinishe
     @Override
     public void success(List dataSet) {
         mUpdateView.updateRecyclerView(dataSet);
+    }
+
+    @Override
+    public void success(NewsDetail newsDetail) {
+
     }
 
     @Override

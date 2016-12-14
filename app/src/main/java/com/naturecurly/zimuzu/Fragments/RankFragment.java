@@ -117,7 +117,9 @@ public class RankFragment extends Fragment implements RankView {
 
     @Override
     public void failGetData() {
-        Toast.makeText(getActivity(), "Timeout, please try again.", Toast.LENGTH_SHORT).show();
+        if (getActivity() != null) {
+            Toast.makeText(getActivity(), "Timeout, please try again.", Toast.LENGTH_SHORT).show();
+        }
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setRefreshing(false);
         }

@@ -8,6 +8,8 @@ import com.google.gson.JsonObject;
 import com.naturecurly.zimuzu.Bean.Favs;
 import com.naturecurly.zimuzu.Bean.Series;
 import com.naturecurly.zimuzu.Bean.Update;
+import com.naturecurly.zimuzu.Databases.EpisodeDataScheme;
+import com.naturecurly.zimuzu.Databases.EpisodeDataScheme.EpisodeTable;
 import com.naturecurly.zimuzu.Databases.FavDataScheme;
 import com.naturecurly.zimuzu.Databases.FavDataScheme.FavTable;
 import com.naturecurly.zimuzu.Databases.UpdateDataScheme;
@@ -59,4 +61,11 @@ public class DatabaseUtils {
         return contentValues;
     }
 
+
+    public static ContentValues generateScheduleContentValues(String resId, String json) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(EpisodeTable.Cols.RESOURCE, resId);
+        contentValues.put(EpisodeTable.Cols.WATCHED, json);
+        return contentValues;
+    }
 }

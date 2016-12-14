@@ -10,6 +10,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -23,6 +27,8 @@ import com.naturecurly.zimuzu.Bean.DatabaseInstance;
 import com.naturecurly.zimuzu.Bean.DetailResponse;
 import com.naturecurly.zimuzu.Bean.Series;
 import com.naturecurly.zimuzu.Databases.FavDataScheme.FavTable;
+import com.naturecurly.zimuzu.Fragments.SeriesDetailFragment;
+import com.naturecurly.zimuzu.Fragments.SeriesScheduleFragment;
 import com.naturecurly.zimuzu.NetworkServices.SeriesDetailService;
 import com.naturecurly.zimuzu.Utils.AccessUtils;
 import com.naturecurly.zimuzu.Utils.DatabaseUtils;
@@ -38,97 +44,58 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class SeriesDetailActivity extends AppCompatActivity {
-    private Series series;
+//    private Series series;
+//    private String id;
+//    private TextView chName;
+//    private TextView enName;
+//    private ImageView poster;
+//    private FrameLayout frameLayout;
+//    private TextView status;
+//    private TextView premiere;
+//    private TextView content;
+//    private TextView score;
+//    private TextView extraInfo;
+//    private ContentValues contentValues;
+//    private FloatingActionButton fab;
+
+
+    private ViewPager viewPager;
+    private Fragment detailFragment;
+    private Fragment scheduleFragment;
     private String id;
-    private TextView chName;
-    private TextView enName;
-    private ImageView poster;
-    private FrameLayout frameLayout;
-    private TextView status;
-    private TextView premiere;
-    private TextView content;
-    private TextView score;
-    private TextView extraInfo;
-    private ContentValues contentValues;
-    private FloatingActionButton fab;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_series_detail);
         transparentStatusBar();
+        viewPager = (ViewPager) findViewById(R.id.series_detail_view_pager);
         Bundle bundle = getIntent().getExtras();
         id = bundle.getString("id");
+//        detailFragment = SeriesDetailFragment.newInstance(id);
+//        scheduleFragment = new SeriesDetailFragment();
+        viewPager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
 
-
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setVisibility(View.GONE);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (DatabaseInstance.database.insert(FavTable.NAME, null, contentValues) > 0) {
-                    Snackbar.make(view, "Added to your Favorite", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                    SharedPreferences preferences = getSharedPreferences("zimuzu", MODE_PRIVATE);
-                    preferences.edit().putInt("updateId", 0).commit();
-                } else {
-                    Snackbar.make(view, "You have added this series", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
-
-            }
-        });
-        frameLayout = (FrameLayout) findViewById(R.id.detail_frame);
-        chName = (TextView) findViewById(R.id.detail_cnname);
-        enName = (TextView) findViewById(R.id.detail_enname);
-        poster = (ImageView) findViewById(R.id.detail_poster);
-        status = (TextView) findViewById(R.id.detail_status);
-        premiere = (TextView) findViewById(R.id.detail_premiere);
-        content = (TextView) findViewById(R.id.detail_content);
-        score = (TextView) findViewById(R.id.detail_score);
-        extraInfo = (TextView) findViewById(R.id.detail_extra);
-        getSeriesDetail();
     }
 
+    public class PagerAdapter extends FragmentPagerAdapter {
+        public PagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
 
-    private void getSeriesDetail() {
-        Retrofit retrofit = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create()).baseUrl(getString(R.string.baseUrl)).build();
-        SeriesDetailService seriesDetailService = retrofit.create(SeriesDetailService.class);
-        Call call = seriesDetailService.getDetail(AccessUtils.generateAccessKey(this), id);
-        call.enqueue(new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) {
-                if (response.isSuccessful()) {
-                    DetailResponse detailResponse = (DetailResponse) response.body();
-                    series = detailResponse.getData();
-                    contentValues = DatabaseUtils.generateFavContentValues(series);
-                    fab.setVisibility(View.VISIBLE);
-                    fillInfo(series);
-                }
+        @Override
+        public Fragment getItem(int position) {
+            if (position == 0) {
+                return SeriesDetailFragment.newInstance(id);
+            } else {
+                return SeriesScheduleFragment.newInstance(id);
             }
+        }
 
-            @Override
-            public void onFailure(Call call, Throwable t) {
-
-            }
-        });
-    }
-
-    private void fillInfo(Series seriesInfo) {
-        chName.setText(seriesInfo.getCnname());
-        enName.setText(seriesInfo.getEnname());
-        status.setText(seriesInfo.getPlay_status());
-        premiere.setText(seriesInfo.getPremiere());
-        content.setText(seriesInfo.getContent());
-        extraInfo.setText(getString(R.string.area) + seriesInfo.getArea() + "\n" + getString(R.string.category) + seriesInfo.getCategory() + "\n" + getString(R.string.channel) + seriesInfo.getChannel());
-        score.setText(getString(R.string.score) + seriesInfo.getScore() + "/" + "10");
-        Glide.with(this).load(seriesInfo.getPoster()).animate(R.animator.load_image).into(poster);
-        Glide.with(this).load(seriesInfo.getPoster()).asBitmap().animate(R.animator.load_image).into(new SimpleTarget<Bitmap>() {
-            @Override
-            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                frameLayout.setBackground(new BitmapDrawable(getResources(), resource));
-            }
-        });
+        @Override
+        public int getCount() {
+            return 2;
+        }
     }
 
     private void transparentStatusBar() {

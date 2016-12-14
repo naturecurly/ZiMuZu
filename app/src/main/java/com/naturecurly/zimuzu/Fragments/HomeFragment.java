@@ -17,30 +17,16 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.naturecurly.zimuzu.Bean.News;
-import com.naturecurly.zimuzu.Bean.NewsResponse;
-import com.naturecurly.zimuzu.NetworkServices.NewsService;
 import com.naturecurly.zimuzu.NewsActivity;
 import com.naturecurly.zimuzu.Presenters.NewsPresenter;
 import com.naturecurly.zimuzu.Presenters.NewsPresenterImpl;
 import com.naturecurly.zimuzu.R;
-import com.naturecurly.zimuzu.Utils.AccessUtils;
 import com.naturecurly.zimuzu.Utils.DateUtils;
 import com.naturecurly.zimuzu.Views.NewsView;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by leveyleonhardt on 11/26/16.
@@ -73,7 +59,7 @@ public class HomeFragment extends Fragment implements NewsView {
                 page = 1;
                 dataSet = new ArrayList<News>();
                 newsPresenter.getNews(getActivity(), page);
-//                fetchNews(page);
+//                fetchNews(page                                                                                                                                          );
             }
         });
         linearLayoutManager = new LinearLayoutManager(getActivity());
@@ -133,7 +119,9 @@ public class HomeFragment extends Fragment implements NewsView {
 
     @Override
     public void failGetData() {
-        Toast.makeText(getActivity(), "Timeout, please try again.", Toast.LENGTH_SHORT).show();
+        if (getActivity() != null) {
+            Toast.makeText(getActivity(), "Timeout, please try again.", Toast.LENGTH_SHORT).show();
+        }
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setRefreshing(false);
         }
@@ -197,62 +185,5 @@ public class HomeFragment extends Fragment implements NewsView {
         }
     }
 
-//    private void fetchNews(final int page) {
-//        Retrofit retrofit = new Retrofit.Builder().addCallAdapterFactory(RxJavaCallAdapterFactory.create()).addConverterFactory(GsonConverterFactory.create()).baseUrl(getString(R.string.baseUrl)).build();
-//        NewsService newsService = retrofit.create(NewsService.class);
-//        Observable fetchNews = newsService.fetchNews(AccessUtils.generateAccessKey(getActivity()), "15", page + "");
-//        fetchNews.retry(3)
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Subscriber<NewsResponse>() {
-//                    @Override
-//                    public void onCompleted() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        Toast.makeText(getActivity(), "Network timeout, please retry.", Toast.LENGTH_SHORT).show();
-//                        swipeRefreshLayout.setRefreshing(false);
-//                    }
-//
-//                    @Override
-//                    public void onNext(NewsResponse newsResponse) {
-//                        dataSet.addAll(newsResponse.getData());
-//                        if (page != 1) {
-//                            recyclerView.getAdapter().notifyDataSetChanged();
-//                        } else {
-//                            recyclerView.setAdapter(new NewsAdapter(dataSet));
-//                        }
-//                        if (swipeRefreshLayout != null) {
-//                            swipeRefreshLayout.setRefreshing(false);
-//                        }
-//                    }
-//                });
-//
-////        Call call = newsService.fetchNews(AccessUtils.generateAccessKey(getActivity()), "15", page + "");
-////        call.enqueue(new Callback() {
-////            @Override
-////            public void onResponse(Call call, Response response) {
-////                if (response.isSuccessful()) {
-////                    NewsResponse newsResponse = (NewsResponse) response.body();
-////                    dataSet.addAll(newsResponse.getData());
-////                    if (page != 1) {
-////                        recyclerView.getAdapter().notifyDataSetChanged();
-////                    } else {
-////                        recyclerView.setAdapter(new NewsAdapter(dataSet));
-////                    }
-////                    if (swipeRefreshLayout != null) {
-////                        swipeRefreshLayout.setRefreshing(false);
-////                    }
-////                }
-////            }
-////
-////            @Override
-////            public void onFailure(Call call, Throwable t) {
-////
-////            }
-////        });
-//    }
 
 }

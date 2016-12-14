@@ -1,6 +1,7 @@
 package com.naturecurly.zimuzu.Utils;
 
 import android.content.Context;
+import android.util.TypedValue;
 
 /**
  * Created by leveyleonhardt on 1/26/16.
@@ -24,5 +25,10 @@ public class DensityUtil {
     public static float px2dip_f(Context context, float pxValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (pxValue / scale + 0.5f);
+    }
+
+    public static int sp2px(Context context, float sp) {
+        int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, context.getResources().getDisplayMetrics());
+        return px;
     }
 }

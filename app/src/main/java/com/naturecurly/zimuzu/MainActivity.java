@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -33,6 +34,12 @@ public class MainActivity extends AppCompatActivity {
     private BottomBar bottomBar;
     private FragmentManager fragmentManager;
     private JobScheduler updateScheduler;
+    private Fragment rankFragment;
+    private Fragment newsFragment;
+    private Fragment favFragment;
+    private Fragment updateFragment;
+    private Fragment searchFragment;
+    private Fragment currentFragment = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(R.string.app_name);
+
+        initFragments();
         fragmentManager = getSupportFragmentManager();
         bottomBar = (BottomBar) findViewById(R.id.bottomBar);
         bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
@@ -57,31 +66,48 @@ public class MainActivity extends AppCompatActivity {
             public void onTabSelected(@IdRes int tabId) {
                 switch (tabId) {
                     case R.id.tab_rank:
-                        fragmentManager.beginTransaction().replace(R.id.content_container, new RankFragment()).commit();
+                        changeFragment(rankFragment, fragmentManager);
                         break;
                     case R.id.tab_home:
-                        fragmentManager.beginTransaction().replace(R.id.content_container, new HomeFragment()).commit();
+                        changeFragment(newsFragment, fragmentManager);
                         break;
                     case R.id.tab_search:
-                        fragmentManager.beginTransaction().replace(R.id.content_container, new SearchFragment()).commit();
+                        changeFragment(searchFragment, fragmentManager);
                         break;
                     case R.id.tab_fav:
-                        fragmentManager.beginTransaction().replace(R.id.content_container, new FavFragment()).commit();
+                        changeFragment(new FavFragment(), fragmentManager);
+
                         break;
                     case R.id.tab_update:
-                        fragmentManager.beginTransaction().replace(R.id.content_container, new UpdateFragment()).commit();
+                        changeFragment(updateFragment, fragmentManager);
                         break;
 
                 }
             }
         });
 
+    }
 
-//        Fragment fragment = fragmentManager.findFragmentById(R.id.content_container);
-//        if (fragment == null) {
-//            fragment = new RankFragment();
-//            fragmentManager.beginTransaction().add(R.id.content_container, fragment).commit();
-//        }
+    private void initFragments() {
+        rankFragment = new RankFragment();
+        newsFragment = new HomeFragment();
+//        favFragment = new FavFragment();
+        updateFragment = new UpdateFragment();
+        searchFragment = new SearchFragment();
+    }
+
+    private void changeFragment(Fragment fragment, FragmentManager fragmentManager) {
+        if (currentFragment != null) {
+            if (!fragment.isAdded()) {
+                fragmentManager.beginTransaction().hide(currentFragment).add(R.id.content_container, fragment).commit();
+            } else {
+                fragmentManager.beginTransaction().hide(currentFragment).show(fragment).commit();
+            }
+            currentFragment = fragment;
+        } else {
+            fragmentManager.beginTransaction().add(R.id.content_container, fragment).commit();
+            currentFragment = fragment;
+        }
     }
 
     private class getDatabaseTask extends AsyncTask<Context, Void, Void> {
